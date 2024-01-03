@@ -22,6 +22,15 @@ class ViewController: UIViewController {
     @IBOutlet var randomButton: UIButton!
     @IBOutlet var resultButton: UIButton!
     
+    /*
+    키: 110cm ~ 200cm
+    몸무게: 40kg ~ 100kg
+    */
+    let minHeight = 110.0
+    let maxHeight = 200.0
+    let minWeight = 40.0
+    let maxWeight = 100.0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -39,7 +48,104 @@ class ViewController: UIViewController {
         designRandomButton()
         designResultButton()
     }
+    
+    // 키보드 내리기
+    @IBAction func tapGestureClicked(_ sender: UITapGestureRecognizer) {
+        view.endEditing(true)
+    }
+    
+    // 랜덤 값 textField에 넣기
+    @IBAction func randomButtonClicked(_ sender: UIButton) {
+        heightTextField.text = String(format: "%.1f", randomDouble(what: "height"))
+        weightTextField.text = String(format: "%.1f", randomDouble(what: "weight"))
+    }
+    
+    // 결과 확인!
+    @IBAction func resultButtonClicked(_ sender: UIButton) {
+        let height = textToDouble(heightTextField)
+        let weight = textToDouble(weightTextField)
+        
+        // 키나 몸무게가 빈칸, 공백, 문자, 범위를 넘어서면 실패 alert
+        if height == -1 || weight == -1 || !isRange(height: height, weight: weight) {
+            showFailAlert()
+        } else {
+            let BMI = calculateBMI(height: height, weight: weight)
+            let result = calculateResult(BMI)
+            
+            // 혹시 모르는 오류...
+            if result == "오류" {
+                showFailAlert()
+            } else {
+                showSuccesAlert(BMI: BMI, result: result)
+            }
+        }
+        eraseTextFields()
+    }
+    
+    func eraseTextFields() {
+        heightTextField.text = ""
+        weightTextField.text = ""
+    }
+    
+    func calculateBMI(height: Double, weight: Double) -> Double {
+        weight / ((height / 100) * (height / 100))
+    }
+    
+    func calculateResult(_ BMI: Double) -> String {
+        switch BMI {
+            case 0 ..< 18.5: return "저체중"
+            case 18.5 ..< 23: return "정상"
+            case 23 ..< 25: return "과체중"
+            case 25... : return "비만"
+            default: return "오류"
+        }
+    }
+    
+    func isRange(height: Double, weight: Double) -> Bool {
+        if minHeight <= height && height <= maxHeight && minWeight <= weight && weight <= maxWeight {
+            return true
+        }
+        return false
+    }
+    
+    func textToDouble(_ textField: UITextField) -> Double {
+        guard let text = textField.text else {
+            return -1
+        }
+        
+        if let text = Double(text) {
+            return text
+        } else {
+            return -1
+        }
+    }
+    
+    func showFailAlert() {
+        let content = UIAlertController(title: "실패", message: "키 또는 몸무게의 값을 잘못 입력하셨습니다", preferredStyle: .alert)
+        let button = UIAlertAction(title: "돌아가기", style: .default)
+        
+        content.addAction(button)
+        
+        present(content, animated: true)
+    }
+    
+    func showSuccesAlert(BMI: Double, result: String) {
+        let content = UIAlertController(title: "\(result)", message: "BMI 지수: \(String(format: "%.2f", BMI))", preferredStyle: .alert)
+        let button = UIAlertAction(title: "돌아가기", style: .default)
+        
+        content.addAction(button)
+        
+        present(content, animated: true)
+    }
 
+    func randomDouble(what: String) -> Double {
+        if what == "height" {
+            return Double.random(in: minHeight...maxHeight)
+        } else {
+            return Double.random(in: minWeight...maxWeight)
+        }
+    }
+    
     func designTitleLabel() {
         titleLabel.text = "BMI Calculator"
         titleLabel.textColor = .black
@@ -64,7 +170,7 @@ class ViewController: UIViewController {
         textField.layer.cornerRadius = 15
         textField.layer.borderColor = UIColor.black.cgColor
         textField.layer.borderWidth = 2
-        textField.keyboardType = .numberPad
+        textField.keyboardType = .decimalPad
     }
     
     func designRandomButton() {
