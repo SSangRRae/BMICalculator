@@ -47,6 +47,8 @@ class ViewController: UIViewController {
         
         designRandomButton()
         designResultButton()
+        
+        UserDefaults.standard.set("상래", forKey: "Nickname")
     }
     
     // 키보드 내리기
@@ -56,12 +58,21 @@ class ViewController: UIViewController {
     
     // 랜덤 값 textField에 넣기
     @IBAction func randomButtonClicked(_ sender: UIButton) {
-        heightTextField.text = String(format: "%.1f", randomDouble(what: "height"))
-        weightTextField.text = String(format: "%.1f", randomDouble(what: "weight"))
+        let height = String(format: "%.1f", randomDouble(what: "height"))
+        let weight = String(format: "%.1f", randomDouble(what: "weight"))
+        
+        UserDefaults.standard.set(height, forKey: "height")
+        UserDefaults.standard.set(weight, forKey: "weight")
+        
+        heightTextField.text = height
+        weightTextField.text = weight
     }
     
     // 결과 확인!
     @IBAction func resultButtonClicked(_ sender: UIButton) {
+        UserDefaults.standard.set(heightTextField.text, forKey: "height")
+        UserDefaults.standard.set(weightTextField.text, forKey: "weight")
+        
         let height = textToDouble(heightTextField)
         let weight = textToDouble(weightTextField)
         
@@ -79,12 +90,6 @@ class ViewController: UIViewController {
                 showSuccesAlert(BMI: BMI, result: result)
             }
         }
-        eraseTextFields()
-    }
-    
-    func eraseTextFields() {
-        heightTextField.text = ""
-        weightTextField.text = ""
     }
     
     func calculateBMI(height: Double, weight: Double) -> Double {
@@ -154,7 +159,11 @@ class ViewController: UIViewController {
     
     func designSubTitileLabel() {
         subTitleLabel.numberOfLines = 0
-        subTitleLabel.text = "당신의 BMI 지수를\n알려드릴게요."
+        if let nickname = UserDefaults.standard.string(forKey: "Nickname") {
+            subTitleLabel.text = "\(nickname)님의 BMI 지수를\n알려드릴게요."
+        } else {
+            subTitleLabel.text = "손님의 BMI 지수를\n알려드릴게요."
+        }
         subTitleLabel.textColor = .black
         subTitleLabel.font = .systemFont(ofSize: 15)
     }
@@ -171,6 +180,19 @@ class ViewController: UIViewController {
         textField.layer.borderColor = UIColor.black.cgColor
         textField.layer.borderWidth = 2
         textField.keyboardType = .decimalPad
+        if textField == heightTextField {
+            setTextFieldsText(textField, value: "height")
+        } else {
+            setTextFieldsText(textField, value: "weight")
+        }
+    }
+    
+    func setTextFieldsText(_ textField: UITextField, value: String) {
+        if let text = UserDefaults.standard.string(forKey: value) {
+            textField.text = text
+        } else {
+            textField.text = ""
+        }
     }
     
     func designRandomButton() {
