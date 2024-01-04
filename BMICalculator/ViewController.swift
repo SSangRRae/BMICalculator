@@ -21,6 +21,7 @@ class ViewController: UIViewController {
     
     @IBOutlet var randomButton: UIButton!
     @IBOutlet var resultButton: UIButton!
+    @IBOutlet var resetButton: UIButton!
     
     /*
     키: 110cm ~ 200cm
@@ -47,8 +48,9 @@ class ViewController: UIViewController {
         
         designRandomButton()
         designResultButton()
+        designResetButton()
         
-        UserDefaults.standard.set("상래", forKey: "Nickname")
+        UserDefaults.standard.set("상래", forKey: "nickname")
     }
     
     // 키보드 내리기
@@ -90,6 +92,17 @@ class ViewController: UIViewController {
                 showSuccesAlert(BMI: BMI, result: result)
             }
         }
+    }
+    
+    // RESET 버튼 클릭 시
+    @IBAction func resetButtonClicked(_ sender: UIButton) {
+        UserDefaults.standard.removeObject(forKey: "nickname")
+        UserDefaults.standard.removeObject(forKey: "height")
+        UserDefaults.standard.removeObject(forKey: "weight")
+        
+        subTitleLabel.text = "손님의 BMI 지수를\n알려드릴게요."
+        heightTextField.text = ""
+        weightTextField.text = ""
     }
     
     func calculateBMI(height: Double, weight: Double) -> Double {
@@ -159,7 +172,7 @@ class ViewController: UIViewController {
     
     func designSubTitileLabel() {
         subTitleLabel.numberOfLines = 0
-        if let nickname = UserDefaults.standard.string(forKey: "Nickname") {
+        if let nickname = UserDefaults.standard.string(forKey: "nickname") {
             subTitleLabel.text = "\(nickname)님의 BMI 지수를\n알려드릴게요."
         } else {
             subTitleLabel.text = "손님의 BMI 지수를\n알려드릴게요."
@@ -197,7 +210,7 @@ class ViewController: UIViewController {
     
     func designRandomButton() {
         randomButton.setTitle("랜덤으로 BMI 계산하기", for: .normal)
-        randomButton.tintColor = .red
+        randomButton.tintColor = .blue
         randomButton.titleLabel?.font =  UIFont.systemFont(ofSize: 13)
     }
     
@@ -207,5 +220,11 @@ class ViewController: UIViewController {
         resultButton.tintColor = .white
         resultButton.titleLabel?.font =  UIFont.boldSystemFont(ofSize: 20)
         resultButton.layer.cornerRadius = 15
+    }
+    
+    func designResetButton() {
+        resetButton.setTitle("RESET", for: .normal)
+        resetButton.tintColor = .red
+        resetButton.titleLabel?.font =  UIFont.systemFont(ofSize: 13)
     }
 }
